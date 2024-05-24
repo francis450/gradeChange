@@ -2,6 +2,7 @@
 
 class AuthController extends BaseController
 {
+
     public function login()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -12,9 +13,9 @@ class AuthController extends BaseController
             $user = $userModel->findByEmail($email);
 
             if ($user && password_verify($password, $user['password'])) {
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['user_type'] = $user['type'];
-                $_SESSION['user_name'] = $user['full_name'];
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['user_name'] = $user['firstname'] . ' ' . $user['lastname'];
                 echo 'success';
             } else {
                 echo 'Invalid email or password';
@@ -30,11 +31,22 @@ class AuthController extends BaseController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userModel = new User();
             $user = $userModel->findByEmail($_POST['email']);
-
             if ($user) {
                 echo 'Email already exists';
+                return;
             } else {
-                $userModel->create($_POST);
+                // check if password and confirm password match
+                if ($_POST['password'] !== $_POST['password_confirmation']) {
+                    echo 'Passwords do not match';
+                    return;
+                }
+                // save user to database
+                $userModel->create([
+                    'firstname' => $_POST['firstname'],
+                    'lastname' => $_POST['lastname'],
+                    'email' => $_POST['email'],
+                    'password' => password_hash($_POST['password'], PASSWORD_DEFAULT),
+                ]);
                 echo 'success';
             }
         } else {
