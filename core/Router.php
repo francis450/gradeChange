@@ -40,7 +40,7 @@ class Router
 
         if (!$callback) {
             http_response_code(404);
-            return require_once 'views/404.php';
+            return require_once 'views/errors/404.php';
         }
 
         if (is_string($callback)) {
