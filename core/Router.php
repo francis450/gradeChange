@@ -9,14 +9,21 @@ class Router
         $this->request = $request;
     }
 
-    public function get($path, $callback)
-    {
-        $this->routes['GET'][$path] = $callback;
+    // public function get($path, $callback)
+    // {
+    //     $this->routes['GET'][$path] = $callback;
+    // }
+    public function get($path, $callback, $middleware = null) {
+        $this->routes['GET'][$path] = ['callback' => $callback, 'middleware' => $middleware];
     }
 
-    public function post($path, $callback)
-    {
-        $this->routes['POST'][$path] = $callback;
+    // public function post($path, $callback)
+    // {
+    //     $this->routes['POST'][$path] = $callback;
+    // }
+
+    public function post($path, $callback, $middleware = null) {
+        $this->routes['POST'][$path] = ['callback' => $callback, 'middleware' => $middleware];
     }
 
     public function put($path, $callback)
@@ -34,17 +41,18 @@ class Router
         $method = $this->request->method();
         $path = $this->stripBasePath($this->request->path());
 
-        $callback = $this->findRoute($method, $path);
-        // echo 'callback:';
-        // echo '<pre>';
-        // print_r($callback);
-        // echo '<pre>';
-        // echo 'callback:';
+        $route = $this->findRoute($method, $path);
 
-        if (!$callback) {
+        if (!$route) {
             http_response_code(404);
             return require_once 'views/errors/404.php';
         }
+
+        if ($route['middleware']) {
+            call_user_func($route['middleware']);
+        }
+
+        $callback = $route['callback'];
 
         if (is_string($callback)) {
             $parts = explode('@', $callback);
