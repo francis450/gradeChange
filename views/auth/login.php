@@ -31,7 +31,10 @@
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" name="password" id="password" class="form-control" required> 
+                                <input type="password" name="password" id="password" class="form-control" required>
+                            </div>
+                            <div class="alert alert-danger" style="display: none;" role="alert">
+                                <p id="response" class="error"></p>
                             </div>
                             <div class="mb-3"></div>
                             <button type="submit" class="btn btn-primary">Login</button>
