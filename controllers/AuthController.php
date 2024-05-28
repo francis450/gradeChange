@@ -1,5 +1,4 @@
 <?php
-
 class AuthController extends BaseController
 {
 
@@ -16,7 +15,9 @@ class AuthController extends BaseController
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['user_name'] = $user['firstname'] . ' ' . $user['lastname'];
-                echo 'success';
+                $log = new Log();
+                $log->createLog($user['id'], 'login', 'User logged in successfully');
+                header('Location: ' . base_url('/dashboard'));
             } else {
                 echo 'Invalid email or password';
             }
@@ -47,7 +48,8 @@ class AuthController extends BaseController
                     'email' => $_POST['email'],
                     'password' => password_hash($_POST['password'], PASSWORD_DEFAULT),
                 ]);
-                echo 'success';
+
+                header('Location: ' . base_url('/login'));
             }
         } else {
             $this->render('auth/register', [], false);
@@ -57,6 +59,7 @@ class AuthController extends BaseController
     public function logout()
     {
         unset($_SESSION['user']);
-        header('Location: /login');
+        session_destroy();
+        header('Location: ' . base_url('/login'));
     }
 }
