@@ -9,4 +9,10 @@ class Course extends BaseModel
     {
         parent::__construct();
     }
+
+    // get department that the course belongs to
+    public function department()
+    {
+        return $this->belongsTo('Department', 'department_id');
+    }
 }
