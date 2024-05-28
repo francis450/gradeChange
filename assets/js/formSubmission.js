@@ -12,6 +12,7 @@ $(document).ready(function () {
       success: function (response) {
         $("#alert").show();
         $("#response").html(response);
+        alert(response.data);
       },
     });
   });
