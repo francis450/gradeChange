@@ -1,7 +1,9 @@
 <?php
 // class to handle all requests
 class Request
-{
+{  
+    public $params = [];
+
     public function method()
     {
         return $_SERVER['REQUEST_METHOD'];
@@ -21,6 +23,12 @@ class Request
     {
         $params = [];
         if ($this->method() === 'GET') {
+            echo 'params:';
+            echo '<pre>';
+            print_r($_GET);
+            echo '<pre>';
+            echo 'params:';
+
             foreach ($_GET as $key => $value) {
                 $params[$key] = $value;
             }
@@ -30,5 +38,11 @@ class Request
             }
         }
         return $params;
+    }
+
+    public function segment($index)
+    {
+        $segments = explode('/', trim($this->path(), '/'));
+        return $segments[$index] ?? null;
     }
 }
