@@ -13,35 +13,35 @@ function generateSidebarLinks($role)
         ],
         'faculty_member' => [
             'Courses' => base_url('/courses'),
-            'Grades' =>     base_url('/grades'),
+            'Grades' => base_url('/grades'),
             'Grade Change Requests' => base_url('/grade-change-requests'),
             'Students' => base_url('/students'),
         ],
         'department_head' => [
             'Courses' => base_url('/courses'),
-            'Grades' =>     base_url('/grades'),
+            'Grades' => base_url('/grades'),
             'Grade Change Requests' => base_url('/grade-change-requests'),
             'Students' => base_url('/students'),
         ],
         'chairman' => [
             'Departments' => base_url('/departments'),
-            'Students' =>   base_url('/students'),
-            'Courses' =>    base_url('/courses'),
-            'Grade Change Requests' =>  base_url('/grade-change-requests'),
+            'Students' => base_url('/students'),
+            'Courses' => base_url('/courses'),
+            'Grade Change Requests' => base_url('/grade-change-requests'),
         ],
         'finance_head' => [
             'Departments' => base_url('/departments'),
-            'Students' =>   base_url('/students'),
-            'Courses' =>    base_url('/courses'),
-            'Grades' =>     base_url('/grades'),
-            'Grade Change Requests' =>  base_url('/grade-change-requests'),
+            'Students' => base_url('/students'),
+            'Courses' => base_url('/courses'),
+            'Grades' => base_url('/grades'),
+            'Grade Change Requests' => base_url('/grade-change-requests'),
         ],
         'admin' => [
             'Departments' => base_url('/departments'),
-            'Students' =>   base_url('/students'),
-            'Courses' =>    base_url('/courses'),
-            'Grades' =>     base_url('/grades'),
-            'Grade Change Requests' =>  base_url('/grade-change-requests'),
+            'Students' => base_url('/students'),
+            'Courses' => base_url('/courses'),
+            'Grades' => base_url('/grades'),
+            'Grade Change Requests' => base_url('/grade-change-requests'),
             'Users' => base_url('/users')
         ],
     ];
@@ -52,12 +52,16 @@ function generateSidebarLinks($role)
         $menuItems = array_merge($menuItems, $links[$role]);
     }
 
+    $currentPath = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+
     foreach ($menuItems as $title => $url) {
-        $activeClass = ($_SERVER['REQUEST_URI'] == $url) ? 'active' : '';
+        $normalizedUrl = rtrim(parse_url($url, PHP_URL_PATH), '/');
+        $activeClass = ($currentPath == $normalizedUrl) ? 'active' : '';
         echo "<a href=\"$url\" class=\"list-group-item list-group-item-action $activeClass\">$title</a>";
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
