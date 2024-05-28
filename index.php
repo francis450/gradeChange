@@ -6,6 +6,8 @@ require_once 'autoload.php';
 
 require_once 'config/config.php';
 
+require_once 'middlewares/checkRole.php';
+
 $router = new Router(new Request);
 
 $router->get('/', 'AuthController@login');
@@ -30,6 +32,6 @@ $router->get('/departments/create', 'DepartmentController@create');
 $router->post('/departments/store', 'DepartmentController@store');
 $router->get('/departments/edit/{id}', 'DepartmentController@edit');
 $router->post('/departments/update/{id}', 'DepartmentController@update');
-$router->get('/departments/delete/{id}', 'DepartmentController@delete');
+$router->get('/departments/delete/{id}', 'DepartmentController@delete', checkRole('admin'));
 
 $router->resolve();
