@@ -9,7 +9,6 @@ class Department extends BaseModel
         parent::__construct();
     }
 
-    // get all courses that belong to the department
     public function courses()
     {
         return $this->hasMany('Course', 'department_id');
@@ -22,6 +21,6 @@ class Department extends BaseModel
 
     public function department_head()
     {
-        return $this->belongsTo('Faculty', 'department_head');
+        return $this->belongsTo('FacultyMember', 'department_head');
     }
 }
