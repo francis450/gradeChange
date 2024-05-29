@@ -78,11 +78,39 @@ class BaseModel
         return $this->conn->lastInsertId();
     }
 
+    // public function belongsTo($model, $foreignKey)
+    // {
+    //     // Get the related model's table name
+    //     $relatedModel = new $model();
+    //     $relatedTable = $relatedModel->table;
+
+    //     // Get the foreign key value from the current instance
+    //     $foreignKeyValue = $this->$foreignKey;
+
+    //     // Prepare and execute the SQL query to fetch the related record
+    //     $sql = "SELECT * FROM {$relatedTable} WHERE id = :id";
+    //     $stmt = $this->conn->prepare($sql);
+    //     $stmt->execute(['id' => $foreignKeyValue]);
+
+    //     // Return the fetched record
+    //     return $stmt->fetch(PDO::FETCH_ASSOC);
+    // }
+
     public function belongsTo($model, $foreignKey)
     {
-        $sql = "SELECT * FROM {$model->table} WHERE id = :id";
+        // Get the related model's table name
+        $relatedModel = new $model();
+        $relatedTable = $relatedModel->table;
+
+        // Get the foreign key value from the current instance
+        $foreignKeyValue = $this->$foreignKey;
+
+        // Prepare and execute the SQL query to fetch the related record
+        $sql = "SELECT * FROM {$relatedTable} WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute(['id' => $this->$foreignKey]);
+        $stmt->execute(['id' => $foreignKeyValue]);
+
+        // Return the fetched record
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -108,5 +136,22 @@ class BaseModel
         $stmt = $this->conn->prepare($sql);
         $stmt->execute(['id' => $this->id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function exists($conditions = [])
+    {
+        $sql = "SELECT COUNT(*) FROM {$this->table} WHERE ";
+
+        $params = [];
+        foreach ($conditions as $column => $value) {
+            $sql .= "$column = :$column AND ";
+            $params[$column] = $value;
+        }
+        $sql = rtrim($sql, ' AND ');
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchColumn() > 0;
     }
 }
