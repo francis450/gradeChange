@@ -29,7 +29,7 @@ class BaseController
     protected function checkAuthentication()
     {
         if (!isset($_SESSION['user_id'])) {
-            $this->redirect('/grade-change/login');
+            $this->redirect(base_url('/login'));
         }
     }
 
@@ -38,5 +38,24 @@ class BaseController
         $fileName = uniqid() . '_' . $file['name'];
         move_uploaded_file($file['tmp_name'], $path . $fileName);
         return $fileName;
+    }
+
+    function getAbbreviation($text)
+    {
+        // Split the text into words
+        $words = explode(' ', $text);
+        $abbreviation = '';
+
+        // Iterate through each word
+        foreach ($words as $word) {
+            // Check if the word is not an empty string
+            if (!empty($word)) {
+                // Add the first letter of the word to the abbreviation
+                $abbreviation .= $word[0];
+            }
+        }
+
+        // Convert the abbreviation to uppercase
+        return strtoupper($abbreviation);
     }
 }

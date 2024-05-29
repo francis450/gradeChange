@@ -2,6 +2,11 @@
 
 class UserController extends BaseController
 {
+    public function __construct()
+    {
+        $this->checkAuthentication();
+    }
+    
     public function index()
     {
         $userModel = new User();
