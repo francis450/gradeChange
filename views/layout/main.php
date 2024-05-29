@@ -8,22 +8,27 @@ function generateSidebarLinks($role)
         ],
         'student' => [
             'Courses' => base_url('/courses'),
+            'Enrollments' => base_url('/enrollments'),
             'Grades' =>  base_url('/grades'),
             'My Grade Change Requests' =>  base_url('/grade-change-requests'),
         ],
-        'faculty_member' => [
+        'faculty_member' => [   
             'Courses' => base_url('/courses'),
+            'Enrollments' => base_url('/enrollments'),
             'Grades' => base_url('/grades'),
             'Grade Change Requests' => base_url('/grade-change-requests'),
             'Students' => base_url('/students'),
         ],
         'department_head' => [
+            'Faculty' => base_url('/faculty'),
             'Courses' => base_url('/courses'),
+            'Enrollments' => base_url('/enrollments'),
             'Grades' => base_url('/grades'),
             'Grade Change Requests' => base_url('/grade-change-requests'),
             'Students' => base_url('/students'),
         ],
         'chairman' => [
+            'Faculty' => base_url('/faculty'),
             'Departments' => base_url('/departments'),
             'Students' => base_url('/students'),
             'Courses' => base_url('/courses'),
@@ -38,8 +43,10 @@ function generateSidebarLinks($role)
         ],
         'admin' => [
             'Departments' => base_url('/departments'),
+            'Faculty' => base_url('/faculty'),
             'Students' => base_url('/students'),
             'Courses' => base_url('/courses'),
+            'Enrollments' => base_url('/enrollments'),
             'Grades' => base_url('/grades'),
             'Grade Change Requests' => base_url('/grade-change-requests'),
             'Users' => base_url('/users')
@@ -90,7 +97,7 @@ function generateSidebarLinks($role)
                         <a class="nav-link btn btn-outline-primary" href="#">Profile</a>
                     </li>
                     <li class="nav-item xs-d-none d-sm-flex">
-                        <a class="nav-link btn btn-outline-danger logout" href="#">Logout</a>
+                        <a class="nav-link btn btn-outline-danger logout" href="<?php echo base_url('/logout');?>">Logout</a>
                     </li>
                 </ul>
                 <div class="list-group d-sm-none">
@@ -122,6 +129,7 @@ function generateSidebarLinks($role)
     <!-- Custom JS -->
     <script src="<?php echo base_url('/assets/js/formSubmission.js') ?>"></script>
     <script src="<?php echo base_url('/assets/js/datatable.js') ?>"></script>
+    <script src="<?php echo base_url('/assets/js/dynamics.js') ?>"></script>
 </body>
 
 </html>
