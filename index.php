@@ -67,6 +67,7 @@ $router->post('/enrollments/store', 'EnrollmentController@store');
 $router->get('/enrollments/edit/{id}', 'EnrollmentController@edit');
 $router->post('/enrollments/update/{id}', 'EnrollmentController@update');
 $router->get('/enrollments/delete/{id}', 'EnrollmentController@delete', checkRole('admin'));
+$router->post('/enrollments/student',  'EnrollmentController@student');
 
 // grades
 $router->get('/grades', 'GradeController@index');
@@ -75,6 +76,7 @@ $router->post('/grades/store', 'GradeController@store');
 $router->get('/grades/edit/{id}', 'GradeController@edit');
 $router->post('/grades/update/{id}', 'GradeController@update');
 $router->get('/grades/delete/{id}', 'GradeController@delete', checkRole('admin'));
+$router->post('/grades/course', 'GradeController@course');
 
 // reports
 $router->get('/reports', 'ReportController@index');
