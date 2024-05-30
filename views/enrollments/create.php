@@ -33,12 +33,13 @@
         <div class="form-group col-6 col-md-4 d-flex align-items-end">
             <button type="submit" class="btn btn-outline-primary ">SAVE</button>
         </div>
-        <?php if(isset($_SESSION['error-message'])) : ?>
-        <div class="alert alert-danger">
-            <p class="error">
-                <?php echo $_SESSION['error-message'] ?? ''; unset($_SESSION['error-message']); ?>
-            </p>
-        </div>
+        <?php if (isset($_SESSION['error-message'])) : ?>
+            <div class="alert alert-danger">
+                <p class="error">
+                    <?php echo $_SESSION['error-message'] ?? '';
+                    unset($_SESSION['error-message']); ?>
+                </p>
+            </div>
         <?php endif; ?>
     </form>
 </div>
