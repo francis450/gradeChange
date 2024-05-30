@@ -55,6 +55,32 @@ class EnrollmentController extends BaseController
         $this->render('enrollments/create', compact('courses','students','departments'));
     }
 
+    public function student()
+    {
+        if(!isset($_POST['student_id']))
+        {
+           return;
+        }
+
+        $studentModel = new Student();
+        $courseModel = new Course();
+        $userModel = new User();
+        $gradeModel = new Grade();
+
+        $student = $studentModel->find($_POST['student_id']);
+
+        // get all grades for the student
+        $grades = $gradeModel->where('student_id', $student['id']);
+
+        $courses = [];
+        foreach ($grades as $grade) {
+            $course = $courseModel->find($grade['course_id']);
+            $courses[] = $course;
+        }
+
+        echo json_encode($courses);
+    }
+
     public function store()
     {
         $enrollmentModel = new Enrollment();
