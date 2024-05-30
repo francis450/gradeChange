@@ -19,7 +19,8 @@ class AuthController extends BaseController
                 $log->createLog($user['id'], 'login', 'User logged in successfully');
                 header('Location: ' . base_url('/dashboard'));
             } else {
-                echo 'Invalid email or password';
+                $_SESSION['error-message'] = 'Invalid email or password';
+                $this->redirect(base_url('/login'));
             }
         } else {
             $data['error'] = 'Invalid email or password';

@@ -33,9 +33,14 @@
                                 <label for="password" class="form-label">Password</label>
                                 <input type="password" name="password" id="password" class="form-control" required>
                             </div>
-                            <div class="alert alert-danger" style="display: none;" role="alert">
-                                <p id="response" class="error"></p>
-                            </div>
+                            <?php if (isset($_SESSION['error-message'])) : ?>
+                                <div class="form-group col-12 alert alert-danger">
+                                    <?php if (isset($_SESSION['error-message'])) {
+                                        echo $_SESSION['error-message'];
+                                        unset($_SESSION['error-message']);
+                                    } ?>
+                                </div>
+                            <?php endif; ?>
                             <div class="mb-3"></div>
                             <button type="submit" class="btn btn-primary">Login</button>
                         </form>
