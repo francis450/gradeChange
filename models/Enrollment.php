@@ -8,4 +8,9 @@ class Enrollment extends BaseModel
     {
             parent::__construct();
     }
+
+    public function course()
+    {
+        return $this->belongsTo('Course', 'course_id');
+    }
 }
