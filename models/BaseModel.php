@@ -73,28 +73,32 @@ class BaseModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function whereAnd(array $conditions)
+    {
+        $sql = "SELECT * FROM {$this->table} WHERE ";
+
+        $clauses = [];
+        $params = [];
+
+        foreach ($conditions as $column => $value) {
+            $clauses[] = "$column = :$column";
+            $params[$column] = $value;
+        }
+
+        $sql .= implode(' AND ', $clauses);
+
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     public  function lastInsertedId()
     {
         return $this->conn->lastInsertId();
     }
-
-    // public function belongsTo($model, $foreignKey)
-    // {
-    //     // Get the related model's table name
-    //     $relatedModel = new $model();
-    //     $relatedTable = $relatedModel->table;
-
-    //     // Get the foreign key value from the current instance
-    //     $foreignKeyValue = $this->$foreignKey;
-
-    //     // Prepare and execute the SQL query to fetch the related record
-    //     $sql = "SELECT * FROM {$relatedTable} WHERE id = :id";
-    //     $stmt = $this->conn->prepare($sql);
-    //     $stmt->execute(['id' => $foreignKeyValue]);
-
-    //     // Return the fetched record
-    //     return $stmt->fetch(PDO::FETCH_ASSOC);
-    // }
 
     public function belongsTo($model, $foreignKey)
     {
