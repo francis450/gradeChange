@@ -39,7 +39,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" name="password" id="password" class="form-control" required> 
+                                <input type="password" name="password" id="password" class="form-control" required>
                             </div>
                             <div class="mb-3">
                                 <label for="password_confirmation" class="form-label">Confirm Password</label>
@@ -50,6 +50,14 @@
                                     <p class="response"></p>
                                 </div>
                             </div>
+                            <?php if (isset($_SESSION['error-message'])) : ?>
+                                <div class="form-group col-12 alert alert-danger">
+                                    <?php if (isset($_SESSION['error-message'])) {
+                                        echo $_SESSION['error-message'];
+                                        unset($_SESSION['error-message']);
+                                    } ?>
+                                </div>
+                            <?php endif; ?>
                             <button type="submit" class="btn btn-primary">Login</button>
                         </form>
                     </div>

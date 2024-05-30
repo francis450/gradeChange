@@ -34,7 +34,7 @@ class AuthController extends BaseController
             $userModel = new User();
             $user = $userModel->findByEmail($_POST['email']);
             if ($user) {
-                echo 'Email already exists';
+                $data['error'] = 'Email already exists';
                 return;
             } else {
                 // check if password and confirm password match
