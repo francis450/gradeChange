@@ -37,15 +37,14 @@
                         <td><?php echo $gradeChangeRequest['requested_points'] ?></td>
                         <td><?php echo $gradeChangeRequest['reason'] ?></td>
                         <td><?php echo $gradeChangeRequest['status'] ?></td>
-                        <?php if ($_SESSION['role'] != 'student') : ?>
+                        <?php if ($_SESSION['role'] == 'student') : ?>
                             <td>
                                 <a href="<?php echo base_url('/grade-change-requests/edit/' . $gradeChangeRequest['id']); ?>" class="btn btn-sm btn-outline-primary">Edit</a>
                                 <a href="<?php echo base_url('/grade-change-requests/delete/' . $gradeChangeRequest['id']); ?>" class="btn btn-sm btn-outline-danger">Delete</a>
                             </td>
                         <?php elseif ($_SESSION['role'] == 'finance head' || $_SESSION['role'] == 'chairman' || $_SESSION['role'] == 'department head') : ?>
                             <td>
-                                <a href="<?php echo base_url('/grade-change-requests/approve/' . $gradeChangeRequest['id']); ?>" class="btn btn-sm btn-outline-primary">Approve</a>
-                                <a href="<?php echo base_url('/grade-change-requests/deny/' . $gradeChangeRequest['id']); ?>" class="btn btn-sm btn-outline-danger">Deny</a>
+                                <a href="<?php echo base_url('/grade-change-requests/' . $gradeChangeRequest['id']); ?>" class="btn btn-sm btn-outline-success">Review</a>
                             </td>
                         <?php endif; ?>
                     </tr>

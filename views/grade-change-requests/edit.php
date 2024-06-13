@@ -1,8 +1,3 @@
-<?php
-// echo '<pre>';
-// print_r($gradeChangeRequest['id']);
-// echo '<pre>';
-?>
 <div class="container">
     <div class="row">
         <h3>Edit Grade Change Request</h3>

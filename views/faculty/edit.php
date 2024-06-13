@@ -1,4 +1,3 @@
-
 <div class="container">
     <h3>Edit Faculty Member Details</h3>
     <form class="row" action="<?php echo base_url('faculty/update/' . $faculty['id']); ?>" method="post">
@@ -14,9 +13,9 @@
                                                     echo 'selected';
                                                 } ?>>Finance Head</option>
                 <option value="chairman" <?php if ($faculty['role'] == 'chairman') {
-                                                    echo 'selected';
-                                                } ?>>chairman</option>
-           
+                                                echo 'selected';
+                                            } ?>>chairman</option>
+
                 <option value="faculty member" <?php if ($faculty['role'] == 'regular faculty') {
                                                     echo 'selected';
                                                 } ?>>Regular Faculty Member
@@ -24,7 +23,7 @@
             </select>
         </div>
 
-        <div class="form-group col-6 col-md-4">
+        <div class="form-group col-6 col-md-4 d-none">
             <label for="department">Department</label>
             <select name="department" id="department" class="form-control">
                 <option value="">Select Department</option>
@@ -35,6 +34,14 @@
                 <?php endforeach; ?>
             </select>
         </div>
+        <?php if (isset($_SESSION['error-message'])) : ?>
+            <div class="alert alert-danger">
+                <p class="error">
+                    <?php echo $_SESSION['error-message'] ?? '';
+                    unset($_SESSION['error-message']); ?>
+                </p>
+            </div>
+        <?php endif; ?>
         <div class="form-group col-6 col-md-4 d-flex align-items-end">
             <button type="submit" class="btn btn-outline-primary ">UPDATE</button>
         </div>

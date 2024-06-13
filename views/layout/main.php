@@ -4,7 +4,7 @@ function generateSidebarLinks($role)
     $links = [
         'common' => [
             'Dashboard' => base_url('/dashboard'),
-            'Notifications' => base_url('/notifications'),
+            // 'Notifications*' => base_url('/notifications'),
         ],
         'student' => [
             'Courses' => base_url('/courses'),
@@ -12,14 +12,14 @@ function generateSidebarLinks($role)
             'Grades' =>  base_url('/grades'),
             'My Grade Change Requests' =>  base_url('/grade-change-requests'),
         ],
-        'faculty_member' => [   
+        'faculty_member' => [
             'Courses' => base_url('/courses'),
             'Enrollments' => base_url('/enrollments'),
             'Grades' => base_url('/grades'),
             'Grade Change Requests' => base_url('/grade-change-requests'),
             'Students' => base_url('/students'),
         ],
-        'department_head' => [
+        'department head' => [
             'Faculty' => base_url('/faculty'),
             'Courses' => base_url('/courses'),
             'Enrollments' => base_url('/enrollments'),
@@ -34,7 +34,7 @@ function generateSidebarLinks($role)
             'Courses' => base_url('/courses'),
             'Grade Change Requests' => base_url('/grade-change-requests'),
         ],
-        'finance_head' => [
+        'finance head' => [
             'Departments' => base_url('/departments'),
             'Students' => base_url('/students'),
             'Courses' => base_url('/courses'),
@@ -84,7 +84,7 @@ function generateSidebarLinks($role)
 </head>
 
 <body>
-    <div class="container-fluid">
+    <div class="container-fluid h-screen overflow-hide">
         <!-- Navigation bar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="#">Dashboard</a>
@@ -93,11 +93,28 @@ function generateSidebarLinks($role)
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto d-none d-sm-flex">
-                    <li class="nav-item mr-1 xs-d-none d-sm-flex">
-                        <a class="nav-link btn btn-outline-primary" href="#">Profile</a>
+                    <li class="nav-item mr-1 xs-d-none btn btn-outline-info">
+                        <?php echo $_SESSION['user_name']; ?>
                     </li>
+                    <li class="nav-item mr-3 xs-d-none btn btn-outline-secondary">
+                        <?php echo $_SESSION['role']; ?>
+                    </li>
+                    <button type="button" class="nav-item mr-3 xs-d-none btn btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        &#128276; <?php echo $_SESSION['notifications']; ?>
+                    </button>
+                    <div class="dropdown-menu" style="position:absolute;width: 300px;left: 920px;">
+                        <?php
+                        if ($_SESSION['notifications'] > 0) {
+                            foreach ($_SESSION['unread_notifications'] as $notification) {
+                                echo '<a class="dropdown-item border" href="' . base_url('/notifications/' . $notification['id']) . '">'.$notification['type'].'</a>';
+                            }
+                        } else {
+                            echo '<a class="dropdown-item" href="#">No new notifications</a>';
+                        }
+                        ?>
+                    </div>
                     <li class="nav-item xs-d-none d-sm-flex">
-                        <a class="nav-link btn btn-outline-danger logout" href="<?php echo base_url('/logout');?>">Logout</a>
+                        <a class="nav-link btn btn-outline-danger logout" href="<?php echo base_url('/logout'); ?>">Logout</a>
                     </li>
                 </ul>
                 <div class="list-group d-sm-none">
@@ -107,18 +124,19 @@ function generateSidebarLinks($role)
         </nav>
 
         <!-- Dashboard Content -->
-        <div class="row mt-4">
-            <div class="col-md-3 ">
+        <div class="row">
+            <div class="col-md-3">
                 <!-- Sidebar -->
-                <div class="list-group d-none d-sm-block">
+                <div class="list-group d-none d-sm-block mt-1">
                     <?php generateSidebarLinks($_SESSION['role']); ?>
                 </div>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-9 main-content">
                 <!-- Main Content -->
                 <?php echo $content; ?>
             </div>
         </div>
+
     </div>
 
     <!-- Bootstrap JS (optional) -->

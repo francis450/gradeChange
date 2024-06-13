@@ -9,11 +9,17 @@ class FacultyController extends BaseController
 
     public function index()
     {
-        $faculty = new FacultyMember();
+        $facultyModel = new FacultyMember();
         $user = new User();
         $department = new Department();
 
-        $faculty = $faculty->all();
+        if ($_SESSION['role'] == 'admin' || $_SESSION['role'] == 'finance head' || $_SESSION['role'] == 'chairman') {
+            $faculty = $facultyModel->all();
+        } else if ($_SESSION['role'] == 'department head') {
+            $facultyn = $facultyModel->where('user_id', $_SESSION['user_id'])[0];
+            $department_id = ($department->find($facultyn['department_id']))['id'];
+            $faculty = $facultyModel->where('department_id', $department_id);
+        }
 
         foreach ($faculty as &$f) {
             if ($f['department_id']) {
@@ -55,7 +61,7 @@ class FacultyController extends BaseController
 
     public function store()
     {
-        $faculty = new FacultyMember();
+        $facultyModel = new FacultyMember();
         $userModel = new User();
 
         $data = [
@@ -64,8 +70,32 @@ class FacultyController extends BaseController
             'role' => $_POST['role']
         ];
 
-        if ($faculty->create($data)) {
-            $userModel->update('id', $_POST['name'], ['role' => 'faculty member']);
+        if ($_POST['role'] == 'department head') {
+            $faculty = $facultyModel->where('department_id', $_POST['department']);
+            if ($faculty) {
+                $_SESSION['error-message'] = 'Department already has a head';
+                $this->redirect(base_url('/faculty/create'));
+            }
+        }
+
+        if ($_POST['role'] == 'finance head') {
+            $faculty = $faculty->where('role', 'finance head');
+            if ($faculty) {
+                $_SESSION['error-message'] = 'Finance head already exists';
+                $this->redirect(base_url('/faculty/create'));
+            }
+        }
+
+        if ($_POST['role'] == 'chairman') {
+            $faculty = $faculty->where('role', 'chairman');
+            if ($faculty) {
+                $_SESSION['error-message'] = 'Chairman already exists';
+                $this->redirect(base_url('/faculty/create'));
+            }
+        }
+
+        if ($facultyModel->create($data)) {
+            $userModel->update('id', $_POST['name'], ['role' => $_POST['role']]);
             $this->redirect(base_url('/faculty'));
         } else {
             return 'faculty creation failed';
@@ -85,19 +115,25 @@ class FacultyController extends BaseController
 
     public function update($params)
     {
+        if (!$_POST['role'] || !$_POST['department']) {
+            $_SESSION['error-message'] = 'Please fill all fields';
+            $this->redirect(base_url('/faculty/edit/' . $params));
+        }
+
         $data = [
             'role' => $_POST['role'],
             'department_id' => $_POST['department']
         ];
 
-        $faculty = new FacultyMember();
+        $facultyModel = new FacultyMember();
 
-        $faculty->update('id', $params[0], $data);
+        $faculty = $facultyModel->update('id', $params, $data);
 
         if ($faculty) {
             $this->redirect(base_url('/faculty'));
         } else {
-            return 'faculty update failed';
+            $_SESSION['error-message'] = 'faculty update failed';
+            $this->redirect(base_url('/faculty/edit/' . $params));
         }
     }
 

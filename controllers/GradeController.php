@@ -13,18 +13,32 @@ class GradeController extends BaseController
         $studentModel = new Student();
         $courseModel = new Course();
         $userModel = new User();
-        
-        $grades = $gradeModel->all();
 
-        foreach($grades as &$grade) {
+        if ($_SESSION['role'] == 'student') {
+            $student = $studentModel->where('user_id', $_SESSION['user_id'])[0];
+            $grades = $gradeModel->where('student_id', $student['id']);
+        }else if ($_SESSION['role'] == 'department head') {
+            $departmentModel = new Department();
+            $facultyModel = new FacultyMember();
+
+            $faculty = $facultyModel->where('user_id', $_SESSION['user_id'])[0];
+            $students = $studentModel->where('department_id', $faculty['department_id']);
+            $grades = [];
+            foreach ($students as $student) {
+                $grades = $gradeModel->where('student_id', $student['id']);
+            }
+        } else {
+            $grades = $gradeModel->all();
+        }
+        foreach ($grades as &$grade) {
             $student = $studentModel->find($grade['student_id']);
             $user = $userModel->find($student['user_id']);
             $firstname = $user['firstname'];
             $lastname = $user['lastname'];
-            $grade['student_name'] = $firstname.' '.$lastname;
+            $grade['student_name'] = $firstname . ' ' . $lastname;
             $grade['student_number'] = $student['student_number'];
             $course = $courseModel->find($grade['course_id']);
-            if($course) {
+            if ($course) {
                 $grade['course_name'] = $course['name'];
             }
         }
@@ -34,15 +48,23 @@ class GradeController extends BaseController
 
     public function course()
     {
-        if(!isset($_POST['course_id']) || !isset($_POST['student_id'])){
+        if (!isset($_POST['course_id'])) {
             return;
         }
 
+        if ($_SESSION['role'] == 'student') {
+            $studentModel = new Student();
+            $student = $studentModel->where('user_id', $_SESSION['user_id'])[0];
+            $student_id = $student['id'];
+        } else {
+            $student_id = $_POST['student_id'];
+        }
+        
         $gradeModel = new Grade();
 
         $conditions = [
             'course_id' => $_POST['course_id'],
-            'student_id' => $_POST['student_id']
+            'student_id' => $student_id 
         ];
 
         $grade = $gradeModel->whereAnd($conditions);
@@ -52,7 +74,7 @@ class GradeController extends BaseController
 
     public function create()
     {
-        $courseModel = new Course(); 
+        $courseModel = new Course();
         $studentModel = new Student();
         $userModel = new User();
         $departmentModel = new Department();
@@ -63,14 +85,14 @@ class GradeController extends BaseController
 
         foreach ($students as &$student) {
             $user = $userModel->find($student['user_id']);
-            if($user) {
+            if ($user) {
                 $firstname = $user['firstname'];
                 $lastname = $user['lastname'];
                 $student['name'] = $firstname . ' ' . $lastname;
             }
         }
 
-        $this->render('grades/create', compact('courses','students','departments'));
+        $this->render('grades/create', compact('courses', 'students', 'departments'));
     }
 
     public function store()
@@ -89,10 +111,9 @@ class GradeController extends BaseController
             $this->redirect(base_url('/grades/create'));
         }
 
-        if ($gradeModel->create($data))
-        {
+        if ($gradeModel->create($data)) {
             $this->redirect(base_url('grades'));
-        }else{
+        } else {
             $_SESSION['error_message'] = 'Grade creation failed';
             $this->redirect(base_url('grades/create'));
         }
@@ -113,7 +134,7 @@ class GradeController extends BaseController
 
         foreach ($students as &$student) {
             $user = $userModel->find($student['user_id']);
-            if($user) {
+            if ($user) {
                 $firstname = $user['firstname'];
                 $lastname = $user['lastname'];
                 $student['name'] = $firstname . ' ' . $lastname;
@@ -135,11 +156,11 @@ class GradeController extends BaseController
             'faculty_id' => $_SESSION['user_id']
         ];
 
-        if ($gradeModel->update('id',$params, $data)) {
+        if ($gradeModel->update('id', $params, $data)) {
             $this->redirect(base_url('grades'));
-        }else{
+        } else {
             $_SESSION['error_message'] = 'Grade update failed';
-            $this->redirect(base_url('grades/edit/'.$params));
+            $this->redirect(base_url('grades/edit/' . $params));
         }
     }
 
@@ -148,8 +169,8 @@ class GradeController extends BaseController
         $gradeModel = new Grade();
         if ($gradeModel->delete($params)) {
             $this->redirect(base_url('grades'));
-        }else{
+        } else {
             $_SESSION['error_message'] = 'Grade deletion failed';
-        }        
+        }
     }
 }

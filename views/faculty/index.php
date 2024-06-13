@@ -10,7 +10,9 @@
                     <th>#</th>
                     <th>Name</th>
                     <th>Role</th>
-                    <th>Department</th>
+                    <?php if ($_SESSION['role'] == 'department head') : ?>
+                        <th>Department</th>
+                    <?php endif; ?>
                     <th></th>
                 </tr>
             </thead>
@@ -21,13 +23,15 @@
                         <td><?php echo $id++; ?></td>
                         <td><?php echo $faculty['faculty_member_name']; ?></td>
                         <td><?php echo $faculty['role']; ?></td>
-                        <td><?php echo $faculty['department_name']; ?></td>
+                        <?php if ($_SESSION['role'] == 'department head') : ?>
+                            <td><?php echo $faculty['department_name']; ?></td>
+                        <?php endif; ?>
                         <td>
                             <a href="<?php echo base_url('/faculty/edit/' . $faculty['id']); ?>" class="btn btn-sm btn-outline-primary">Edit</a>
                             <a href="<?php echo base_url('/faculty/delete/' . $faculty['id']); ?>" class="btn btn-sm btn-outline-danger">Delete</a>
                         </td>
                     </tr>
-                     <?php endforeach; ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>

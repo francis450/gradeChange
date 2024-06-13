@@ -72,7 +72,7 @@ class DepartmentController extends BaseController
     public function edit($params)
     {
         $departmentModel = new Department();
-        $department = $departmentModel->find($params[0]);
+        $department = $departmentModel->find($params);
         $faculty = new FacultyMember();
         $faculty = $faculty->all();
         $this->render('departments/edit', ['department' => $department, 'faculty' => $faculty]);
@@ -86,7 +86,7 @@ class DepartmentController extends BaseController
 
         $departmentModel = new Department();
 
-        $departmentModel->update('id', $params[0], $data);
+        $departmentModel->update('id', $params, $data);
 
         if ($departmentModel) {
             $this->redirect(base_url('/departments'));

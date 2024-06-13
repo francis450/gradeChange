@@ -16,7 +16,7 @@ class BaseModel
         $placeholders = ':' . implode(', :', array_keys($data));
         $sql = "INSERT INTO {$this->table} ($columns) VALUES ($placeholders)";
         $stmt = $this->conn->prepare($sql);
-        // return the record created
+        // $this->logAction('create', json_encode($data));
         return $stmt->execute($data) ? $this->lastInsertedId() : false;
     }
 
@@ -157,5 +157,14 @@ class BaseModel
         $stmt->execute($params);
 
         return $stmt->fetchColumn() > 0;
+    }
+
+    protected function logAction( $action, $details)
+    {
+        $userId = $_SESSION['user_id'];
+        if ($userId !== null) {
+            $log = new Log();
+            $log->createLog($userId, $action, $details);
+        }
     }
 }

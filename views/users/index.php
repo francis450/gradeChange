@@ -5,7 +5,7 @@
             <h3>Users</h3>
             <a href="<?php echo base_url('users/create'); ?>" class="btn btn-outline-primary">Add User</a>
         </div>
-        <table class="table" style="overflow-x:auto">
+        <table class="table main-content" style="overflow-x:auto">
             <thead>
                 <tr>
                     <th>#</th>

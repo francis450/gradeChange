@@ -5,8 +5,8 @@
             <label for="name">Name</label>
             <select name="name" id="name" class="form-control">
                 <option value="">Select User</option>
-                <?php foreach($users as $user): ?>
-                    <option value="<?php echo $user['id']; ?>"><?php echo $user['firstname']." ".$user['lastname']; ?></option>
+                <?php foreach ($users as $user) : ?>
+                    <option value="<?php echo $user['id']; ?>"><?php echo $user['firstname'] . " " . $user['lastname']; ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -14,7 +14,7 @@
             <label for="department">Department</label>
             <select name="department" id="department" class="form-control">
                 <option value="">Select Department</option>
-                <?php foreach($departments as $department): ?>
+                <?php foreach ($departments as $department) : ?>
                     <option value="<?php echo $department['id']; ?>"><?php echo $department['name']; ?></option>
                 <?php endforeach; ?>
             </select>
@@ -29,6 +29,14 @@
                 <option value="chairman">chairman</option>
             </select>
         </div>
+        <?php if (isset($_SESSION['error-message'])) : ?>
+            <div class="alert alert-danger">
+                <p class="error">
+                    <?php echo $_SESSION['error-message'] ?? '';
+                    unset($_SESSION['error-message']); ?>
+                </p>
+            </div>
+        <?php endif; ?>
         <div class="form-group col-6 col-md-4 d-flex align-items-end">
             <button type="submit" class="btn btn-outline-primary ">SAVE</button>
         </div>

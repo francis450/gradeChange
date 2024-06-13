@@ -41,7 +41,7 @@ class UserController extends BaseController
     public function edit($params)
     {
         $user = new User;
-        $user = $user->find($params[0]);
+        $user = $user->find($params);
 
         $this->render('users/edit', compact('user'));
     }
@@ -57,7 +57,7 @@ class UserController extends BaseController
 
         $userModel = new User();
 
-        $userModel->update('id',$params[0], $data);
+        $userModel->update('id',$params, $data);
 
         if($userModel) {
             $this->redirect(base_url('/users'));
@@ -69,7 +69,7 @@ class UserController extends BaseController
     public function delete($params)
     {
         $userModel = new User();
-        if($userModel->delete($params[0])){
+        if($userModel->delete($params)){
             $this->redirect(base_url('/users'));
         } else {
             return 'User deletion failed';

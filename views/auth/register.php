@@ -12,7 +12,7 @@
     <div class="container" style="height: 100vh;">
         <div class="row mt-5 h-100">
             <div class="col-md-6 offset-md-3">
-                <div class="card">
+                <div class="card p-0">
                     <div class="card-header">
                         <div class="row">
                             <div class="col-6">

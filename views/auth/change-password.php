@@ -16,23 +16,20 @@
                     <div class="card-header">
                         <div class="row">
                             <div class="col-6">
-                                <h4>Login</h4>
+                                <h4>Change Password</h4>
                             </div>
                             <div class="col-6 text-end">
-                                <a href="<?php echo base_url('register') ?>">Register</a>
+                                <a href="<?php echo base_url('register') ?>">Login</a>
                             </div>
                         </div>
                     </div>
                     <div class="card-body">
-                        <form action="<?php echo base_url('/login') ?>" method="post">
+                        <form action="<?php echo base_url('/change-password') ?>" method="post">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" name="email" id="email" class="form-control" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" name="password" id="password" class="form-control" required>
-                            </div>
+
                             <?php if (isset($_SESSION['error-message'])) : ?>
                                 <div class="form-group col-12 alert alert-danger">
                                     <?php if (isset($_SESSION['error-message'])) {
@@ -41,8 +38,9 @@
                                     } ?>
                                 </div>
                             <?php endif; ?>
-                            <div class="mb-3"></div>
-                            <button type="submit" class="btn btn-primary">Login</button>
+                            <div class="mb-3 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">SEND OTP</button>
+                            </div>
                         </form>
                     </div>
                 </div>

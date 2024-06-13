@@ -1,6 +1,6 @@
 <?php
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'gradeChange');
+define('DB_NAME', 'infodata_grade_change');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 function base_url($path = '')

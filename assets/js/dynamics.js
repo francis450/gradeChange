@@ -18,12 +18,12 @@ $(document).ready(function () {
           $.each(data.courses, function (key, value) {
             course_select.append(
               '<option value="' +
-                value.id +
-                '">' +
-                value.code +
-                " - " +
-                value.name +
-                "</option>"
+              value.id +
+              '">' +
+              value.code +
+              " - " +
+              value.name +
+              "</option>"
             );
           });
           var student_select = $("#student_id");
@@ -32,12 +32,12 @@ $(document).ready(function () {
           $.each(data.students, function (key, value) {
             student_select.append(
               '<option value="' +
-                value.id +
-                '">' +
-                value.student_number +
-                " - " +
-                value.name +
-                "</option>"
+              value.id +
+              '">' +
+              value.student_number +
+              " - " +
+              value.name +
+              "</option>"
             );
           });
         },
@@ -62,12 +62,12 @@ $(document).ready(function () {
           $.each(data, function (key, value) {
             student_select.append(
               '<option value="' +
-                value.id +
-                '">' +
-                value.student_number +
-                " - " +
-                value.name +
-                "</option>"
+              value.id +
+              '">' +
+              value.student_number +
+              " - " +
+              value.name +
+              "</option>"
             );
           });
         },
@@ -97,7 +97,7 @@ $(document).ready(function () {
       alert("Invalid points");
     }
   });
-  
+
   $(".ernrollment_student_id").change(function () {
     var student_id = $(this).val();
     var pathArray = window.location.pathname.split("/");
@@ -151,5 +151,40 @@ $(document).ready(function () {
     } else {
       alert("Choose Course and Student to load grades");
     }
+  });
+
+  $('#approve').click(function (e) {
+    e.preventDefault();
+    let feedback = $('#feedback').val();
+
+    if (feedback == '') {
+      alert('Feedback is required');
+      return;
+    }
+
+    // get the id from the url
+    let pathArray = window.location.pathname.split('/');
+    let url = pathArray[0] + '/' + pathArray[1] + '/grade-change-requests/approve/' + pathArray[3];
+    $.post(url, { feedback: feedback }, function (data) {
+      if (data != ''){
+        alert(data);
+      }else{
+        window.location.href = pathArray[0] + '/' + pathArray[1] + '/grade-change-requests';
+      }
+    });
+  });
+
+  $('#deny').click(function (e) {
+    e.preventDefault();
+    let feedback = $('#feedback').val();
+    if (feedback == '') {
+      alert('Feedback is required');
+      return;
+    }
+    let pathArray = window.location.pathname.split('/');
+    let url = pathArray[0] + '/' + pathArray[1] + '/grade-change-requests/deny/' + pathArray[3];
+    $.post(url, { feedback: feedback }, function (data) {
+      alert(data);
+    });
   });
 });

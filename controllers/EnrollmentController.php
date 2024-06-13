@@ -13,18 +13,37 @@ class EnrollmentController extends BaseController
         $studentModel = new Student();
         $courseModel = new Course();
         $userModel = new User();
-        
-        $enrollments = $enrollmentModel->all();
 
-        foreach($enrollments as &$enrollment) {
+        if ($_SESSION['role'] == 'student') {
+            $student = $studentModel->where('user_id', $_SESSION['user_id'])[0];
+            $enrollments = $enrollmentModel->where('student_id', $student['id']);
+        }else if ($_SESSION['role'] == 'department head') {
+            $facultyModel = new FacultyMember();
+            $faculty = $facultyModel->where('user_id', $_SESSION['user_id'])[0];
+            $students = $studentModel->where('department_id', $faculty['department_id']);
+            $enrollments = [];
+            
+            foreach($students as $student) {
+                $individualEnrollment = $enrollmentModel->where('student_id', $student['id']);
+       
+            foreach ($individualEnrollment as $enrollment){
+                    $enrollments[] = $enrollment;
+                }
+            }
+            
+        } else {
+            $enrollments = $enrollmentModel->all();
+        }
+
+        foreach ($enrollments as &$enrollment) {
             $student = $studentModel->find($enrollment['student_id']);
             $user = $userModel->find($student['user_id']);
             $firstname = $user['firstname'];
             $lastname = $user['lastname'];
-            $enrollment['student_name'] = $firstname.' '.$lastname;
+            $enrollment['student_name'] = $firstname . ' ' . $lastname;
             $enrollment['student_number'] = $student['student_number'];
             $course = $courseModel->find($enrollment['course_id']);
-            if($course) {
+            if ($course) {
                 $enrollment['course_name'] = $course['name'];
             }
         }
@@ -34,7 +53,7 @@ class EnrollmentController extends BaseController
 
     public function create()
     {
-        $courseModel = new Course(); 
+        $courseModel = new Course();
         $studentModel = new Student();
         $userModel = new User();
         $departmentModel = new Department();
@@ -45,21 +64,20 @@ class EnrollmentController extends BaseController
 
         foreach ($students as &$student) {
             $user = $userModel->find($student['user_id']);
-            if($user) {
+            if ($user) {
                 $firstname = $user['firstname'];
                 $lastname = $user['lastname'];
                 $student['name'] = $firstname . ' ' . $lastname;
             }
         }
 
-        $this->render('enrollments/create', compact('courses','students','departments'));
+        $this->render('enrollments/create', compact('courses', 'students', 'departments'));
     }
 
     public function student()
     {
-        if(!isset($_POST['student_id']))
-        {
-           return;
+        if (!isset($_POST['student_id'])) {
+            return;
         }
 
         $studentModel = new Student();
@@ -95,15 +113,15 @@ class EnrollmentController extends BaseController
             $this->redirect(base_url('/enrollments/create'));
         }
 
-        if ($enrollmentModel->create($data)){
+        if ($enrollmentModel->create($data)) {
             $this->redirect(base_url('/enrollments'));
-        }else{
+        } else {
             echo 'Failed to enroll';
         }
-
     }
 
-    public function edit($params){
+    public function edit($params)
+    {
         $enrollmentModel = new Enrollment();
         $studentModel = new Student();
         $userModel = new User();
@@ -117,34 +135,36 @@ class EnrollmentController extends BaseController
 
         $firstname = $user['firstname'];
         $lastname = $user['lastname'];
-        $enrollment['student_name'] = $firstname.' '.$lastname;
+        $enrollment['student_name'] = $firstname . ' ' . $lastname;
         $enrollment['student_number'] = $student['student_number'];
 
         $this->render('enrollments/edit', compact('enrollment', 'courses'));
     }
 
-    public function update($params){
+    public function update($params)
+    {
         $enrollmentModel = new Enrollment();
 
         $data = [
             'course_id' => $_POST['course_id'],
         ];
 
-        if ($enrollmentModel->update($params, $data)){
+        if ($enrollmentModel->update($params, $data)) {
             $this->redirect(base_url('/enrollments'));
-        }else{
-            $this->redirect(base_url('/enrollments/edit/'.$params));
+        } else {
+            $this->redirect(base_url('/enrollments/edit/' . $params));
             $_SESSION['error-message'] = 'Failed to update';
         }
     }
 
-    public function delete($params){
+    public function delete($params)
+    {
         $enrollmentModel = new Enrollment();
 
-        if ($enrollmentModel->delete($params)){
+        if ($enrollmentModel->delete($params)) {
             $_SESSION['success-message'] = 'Enrollment deleted successfully';
             $this->redirect(base_url('/enrollments'));
-        }else{
+        } else {
             $_SESSION['error-message'] = 'Failed to delete enrollment';
         }
     }

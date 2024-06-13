@@ -12,7 +12,17 @@ class CourseController extends BaseController
         $courses = new Course();
         $departments = new Department();
 
-        $courses = $courses->all();
+        if($_SESSION['role'] == 'student') {
+            $student = new Student();
+            $student = $student->where('user_id', $_SESSION['user_id'])[0];
+            $courses = $courses->where('department_id', $student['department_id']);
+        }else if ($_SESSION['role'] == 'department head') {
+            $faculty = new FacultyMember();
+            $faculty = $faculty->where('user_id', $_SESSION['user_id'])[0];
+            $courses = $courses->where('department_id', $faculty['department_id']);
+        }else{
+            $courses = $courses->all();
+        }
 
         foreach ($courses as $key => $course) {
             $department = $departments->find($course['department_id']);
@@ -89,7 +99,7 @@ class CourseController extends BaseController
         $course = new Course();
         $departments = new Department();
 
-        $course = $course->find($params[0]);
+        $course = $course->find($params);
         $departments = $departments->all(); 
 
         $this->render('courses/edit', compact('course', 'departments'));
@@ -111,7 +121,7 @@ class CourseController extends BaseController
             'code' => $courseCode,
         ];
 
-        $course->update('id',$params[0], $data);
+        $course->update('id',$params, $data);
 
         header('Location: ' . base_url('courses'));
     }

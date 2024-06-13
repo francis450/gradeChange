@@ -16,6 +16,9 @@ $router->post('/login', 'AuthController@login');
 $router->get('/logout', 'AuthController@logout');
 $router->get('/register', 'AuthController@register');
 $router->post('/register', 'AuthController@register');
+$router->get('/change-password', 'AuthController@changePassword');
+$router->post('/change-password', 'AuthController@changePassword');
+$router->post('/new-password', 'AuthController@newPassword');
 // dashboard
 $router->get('/dashboard', 'DashboardController@index');
 // users
@@ -93,14 +96,17 @@ $router->post('/grade-change-requests/store', 'GradeChangeRequestController@stor
 $router->get('/grade-change-requests/edit/{id}', 'GradeChangeRequestController@edit');
 $router->post('/grade-change-requests/update/{id}', 'GradeChangeRequestController@update');
 $router->get('/grade-change-requests/delete/{id}', 'GradeChangeRequestController@delete', checkRole('admin'));
-
+$router->get('/grade-change-requests/{id}', 'GradeChangeRequestController@show');
+$router->post('/grade-change-requests/approve/{id}', 'GradeChangeRequestController@approve');
+$router->post('/grade-change-requests/deny/{id}', 'GradeChangeRequestController@deny');
 
 // notifications
 $router->get('/notifications', 'NotificationController@index');
+$router->get('/notifications/mark-as-read/{id}', 'NotificationController@markAsRead');
 $router->get('/notifications/create', 'NotificationController@create');
 $router->post('/notifications/store', 'NotificationController@store');
 $router->get('/notifications/edit/{id}', 'NotificationController@edit');
+$router->get('/notifications/{id}', 'NotificationController@show');
 $router->post('/notifications/update/{id}', 'NotificationController@update');
 $router->get('/notifications/delete/{id}', 'NotificationController@delete', checkRole('admin'));
-
 $router->resolve();

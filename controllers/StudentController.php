@@ -9,9 +9,16 @@ class StudentController extends BaseController
 
     public function index()
     {
-        $students = new Student();
+        $studentModel = new Student();
 
-        $students = $students->all();
+        if($_SESSION['role'] == 'department head') {
+            $faculty = new FacultyMember();
+            $faculty = $faculty->where('user_id', $_SESSION['user_id'])[0];
+            $students = $studentModel->where('department_id', $faculty['department_id']);
+     
+        } else {
+            $students = $studentModel->all();
+        }
 
         foreach ($students as &$student) {
             $student['department'] = (new Department())->find($student['department_id'])['name'];
@@ -79,7 +86,7 @@ class StudentController extends BaseController
         $departments = new Department();
         $user = new User();
 
-        $student = $student->find($params[0]);
+        $student = $student->find($params);
         $department = $departments->find($student['department_id']);
         $user = $user->find($student['user_id']);
 
@@ -99,14 +106,14 @@ class StudentController extends BaseController
         $department = $departments->find($_POST['department_id']);
         $department_name = $department['name'];
         $department_abbreviation = $this->getAbbreviation($department_name);
-        $student = $studentModel->find($params[0]);
+        $student = $studentModel->find($params);
         $data = [
             'user_id' => $student['user_id'],
-            'student_number' => $department_abbreviation . '-' . $params[0], // 'CSE-1234
+            'student_number' => $department_abbreviation . '-' . $params, // 'CSE-1234
             'department_id' => $_POST['department_id'],
         ];
 
-        if ($studentModel->update('id', $params[0], $data)) {
+        if ($studentModel->update('id', $params, $data)) {
             $this->redirect(base_url('/students'));
         } else {
             echo "Error while updating data. Please try again.";

@@ -27,7 +27,11 @@
             <label for="course_id">Course</label>
             <select name="course_id" id="course" class="form-control course_grade_id" required>
                 <option value="">Select Course</option>
-
+                <?php if ($_SESSION['role'] == 'student') : ?>
+                <?php foreach ($courses as $course) : ?>
+                    <option value="<?php echo $course['id'] ?>"><?php echo $course['name'] ?></option>
+                <?php endforeach;  ?>
+                <?php endif;  ?>
             </select>
         </div>
         <div class="form-group col-6 col-md-4">
@@ -47,7 +51,7 @@
             <input type="text" id="grade" class="form-control" name="requested_grade" readonly>
         </div>
         <div class="form-group col-6 col-md-4">
-            <label for="reason">Reason</label>
+            <label for="reason">Justification</label>
             <textarea name="reason" id="reason" class="form-control" required placeholder="State valid Reason for Grade Change"></textarea>
         </div>
         <?php if (isset($_SESSION['error-message'])) : ?>
