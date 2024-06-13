@@ -22,6 +22,7 @@
                 <option value="departmnet head">Department Head</option>
                 <option value="faculty member" >Faculty Member</option>
                 <option value="student" >Student </option>
+                <option value="user" >Website User </option>
             </select>
         </div>
         <div class="form-group col-6 col-md-4 d-flex align-items-end">
