@@ -5,7 +5,7 @@
             <h3>Users</h3>
             <a href="<?php echo base_url('users/create'); ?>" class="btn btn-outline-primary">Add User</a>
         </div>
-        <table class="table main-content" style="overflow-x:auto">
+        <table id="users" class="display responsive nowrap table main-content" style="overflow-x:auto">
             <thead>
                 <tr>
                     <th>#</th>
@@ -33,3 +33,16 @@
         </table>
     </div>
 </div>
+<script>
+    $(document).ready(function() {
+        var table = new DataTable('#users', {
+            searchable: true,
+            sortable: true,
+            select: true            
+        });
+
+        table.on('click', 'tbody tr', function(e) {
+            e.currentTarget.classList.toggle('selected');
+        });
+    });
+</script> 

@@ -1,6 +1,6 @@
 <div class="container">
     <h3>Add Grade Change Request</h3>
-    <form action="<?php echo base_url('grade-change-requests/store') ?>" method="post" class="row">
+    <form enctype="multipart/form-data" action="<?php echo base_url('grade-change-requests/store') ?>" method="post" class="row">
         <?php if ($_SESSION['role'] != 'student') : ?>
             <div class="form-group col-6 col-md-4">
                 <label for="department_id">Department</label>
@@ -28,9 +28,9 @@
             <select name="course_id" id="course" class="form-control course_grade_id" required>
                 <option value="">Select Course</option>
                 <?php if ($_SESSION['role'] == 'student') : ?>
-                <?php foreach ($courses as $course) : ?>
-                    <option value="<?php echo $course['id'] ?>"><?php echo $course['name'] ?></option>
-                <?php endforeach;  ?>
+                    <?php foreach ($courses as $course) : ?>
+                        <option value="<?php echo $course['id'] ?>"><?php echo $course['name'] ?></option>
+                    <?php endforeach;  ?>
                 <?php endif;  ?>
             </select>
         </div>
@@ -54,6 +54,13 @@
             <label for="reason">Justification</label>
             <textarea name="reason" id="reason" class="form-control" required placeholder="State valid Reason for Grade Change"></textarea>
         </div>
+        <div class="form-group col-6 col-md-4">
+            <label for="attachment">Attachment</label>
+            <input type="file" name="attachment" id="attachment" class="" accept=".pdf, .doc, .docx, .txt">
+        </div>
+        <div class="form-group col-6 col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
         <?php if (isset($_SESSION['error-message'])) : ?>
             <div class="form-group col-6 col-md-4 alert alert-danger">
                 <?php if (isset($_SESSION['error-message'])) {
@@ -62,8 +69,5 @@
                 } ?>
             </div>
         <?php endif; ?>
-        <div class="form-group col-6 col-md-4 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
     </form>
 </div>

@@ -78,6 +78,7 @@ function generateSidebarLinks($role)
     <title><?php echo $title ?? 'My Application'; ?></title>
     <!-- Bootstrap CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?php echo base_url('/assets/css/style.css') ?>">
     <link rel="stylesheet" href="<?php echo base_url('/assets/css/datatable.css') ?>">
@@ -102,8 +103,8 @@ function generateSidebarLinks($role)
                     <button type="button" class="nav-item mr-3 xs-d-none btn btn-outline-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         &#128276; <?php echo $_SESSION['notifications']; ?>
                     </button>
-                    <div class="dropdown-menu" style="position:absolute;width: 300px;left: 920px;">
-                        <?php
+                    <div class="dropdown-menu" style="position:absolute;left: 920px;">
+                        <?php   
                         if ($_SESSION['notifications'] > 0) {
                             foreach ($_SESSION['unread_notifications'] as $notification) {
                                 echo '<a class="dropdown-item border" href="' . base_url('/notifications/' . $notification['id']) . '">'.$notification['type'].'</a>';
@@ -125,13 +126,13 @@ function generateSidebarLinks($role)
 
         <!-- Dashboard Content -->
         <div class="row">
-            <div class="col-md-3">
+            <div class="bg-gray-200 col-md-3 ">
                 <!-- Sidebar -->
                 <div class="list-group d-none d-sm-block mt-1">
                     <?php generateSidebarLinks($_SESSION['role']); ?>
                 </div>
             </div>
-            <div class="col-md-9 main-content">
+            <div class="col-md-9 main-content pb-1" >
                 <!-- Main Content -->
                 <?php echo $content; ?>
             </div>
@@ -140,7 +141,6 @@ function generateSidebarLinks($role)
     </div>
 
     <!-- Bootstrap JS (optional) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 

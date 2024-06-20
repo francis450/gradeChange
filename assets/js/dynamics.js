@@ -156,35 +156,23 @@ $(document).ready(function () {
   $('#approve').click(function (e) {
     e.preventDefault();
     let feedback = $('#feedback').val();
+    let action = $('#action').val();
 
-    if (feedback == '') {
-      alert('Feedback is required');
+    if (feedback == '' || action == '') {
+      alert('Action and Feedback are Required');
       return;
     }
 
     // get the id from the url
     let pathArray = window.location.pathname.split('/');
     let url = pathArray[0] + '/' + pathArray[1] + '/grade-change-requests/approve/' + pathArray[3];
-    $.post(url, { feedback: feedback }, function (data) {
-      if (data != ''){
-        alert(data);
-      }else{
-        window.location.href = pathArray[0] + '/' + pathArray[1] + '/grade-change-requests';
+    $.post(url, { feedback: feedback, action }, function (data) {
+      if (data != '') {
+        window.location.href = pathArray[0] + '/' + pathArray[1] + '/grade-change-requests/' + pathArray[3];
+        // alert(data);
+      } else {
+        // window.location.href = pathArray[0] + '/' + pathArray[1] + '/grade-change-requests';
       }
-    });
-  });
-
-  $('#deny').click(function (e) {
-    e.preventDefault();
-    let feedback = $('#feedback').val();
-    if (feedback == '') {
-      alert('Feedback is required');
-      return;
-    }
-    let pathArray = window.location.pathname.split('/');
-    let url = pathArray[0] + '/' + pathArray[1] + '/grade-change-requests/deny/' + pathArray[3];
-    $.post(url, { feedback: feedback }, function (data) {
-      alert(data);
     });
   });
 });

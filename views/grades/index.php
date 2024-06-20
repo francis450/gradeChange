@@ -7,7 +7,7 @@
                     <a href="<?php echo base_url('grades/create') ?>" class="btn btn-primary">Add Grade</a>
                 <?php endif; ?>
             </div>
-            <table class="table">
+            <table id="grades" class="display responsive nowrap table" style="overflow-x:auto">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -46,3 +46,17 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function() {
+        var table = new DataTable('#grades', {
+            searchable: true,
+            sortable: true,
+            select: true,
+        });
+
+        table.on('click', 'tbody tr', function(e) {
+            e.currentTarget.classList.toggle('selected');
+            console.log('Target: ',e.currentTarget);
+        });
+    });
+</script>

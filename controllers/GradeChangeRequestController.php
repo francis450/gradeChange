@@ -9,135 +9,128 @@ class GradeChangeRequestController extends BaseController
         $this->checkAuthentication();
     }
 
-    public function approve($id)
+    protected function changeGrade($id)
     {
         $gradeChangeRequestModel = new GradeChangeRequest();
         $gradeModel = new Grade();
-        $studentModel = new Student();
+        $gradeChangeActionModel = new GradeChangeAction();
+
+
+        $gradeChangeRequest = $gradeChangeRequestModel->find($id);
+
+        $approvals = $gradeChangeActionModel->whereAnd(['request_id' => $id, 'action' => 'approved']);
+        if (count($approvals) == 3) {
+            $data = [
+                'status' => 'Approved'
+            ];
+            $gradeChangeRequestModel->update('id', $id, $data);
+
+            $grade = $gradeModel->whereAnd(['student_id' => $gradeChangeRequest['student_id'], 'course_id' => $gradeChangeRequest['course_id']])[0];
+            $grade_data = [
+                'grade' => $gradeChangeRequest['requested_grade'],
+                'points' => $gradeChangeRequest['requested_points']
+            ];
+            $gradeModel->update('id', $grade['id'], $grade_data);
+        } else {
+            $data = [
+                'status' => 'ChairmanApproval'
+            ];
+            $gradeChangeRequestModel->update('id', $id, $data);
+        }
+    }
+
+    public function approve($id)
+    {
+        $gradeChangeRequestModel = new GradeChangeRequest();
+        $gradeChangeRequest = $gradeChangeRequestModel->find($id);
+
+        if (!$gradeChangeRequest) {
+            $_SESSION['error-message'] = 'Error Approving Grade Change Request. Please Try Again';
+            return $this->index();
+        }
+
+        $action = $_POST['action'];
+        if ($action == 'reject') {
+            return $this->deny($id);
+        } elseif ($action    == 'review') {
+            return $this->handleReview($gradeChangeRequest);
+        } elseif ($action == 'approved') {
+            return $this->handleApproval($gradeChangeRequest);
+        }
+    }
+
+    private function handleReview($gradeChangeRequest)
+    {
+        $gradeChangeActionModel = new GradeChangeAction();
+        $gradeChangeRequestModel = new GradeChangeRequest();
+        $data = [
+            'request_id' => $gradeChangeRequest['id'],
+            'action' => 'review',
+            'feedback' => $_POST['feedback'],
+            'created_by' => $_SESSION['user_id']
+        ];
+        $gradeChangeActionModel->create($data);
+
+        $notificationModel = new Notification();
+        $facultyModel = new FacultyMember();
+        $userModel = new User();
         $courseModel = new Course();
+
+        $department_head = $facultyModel->where('role', 'department head')[0];
+        $department_head_user = $userModel->find($department_head['user_id']);
+        $course = $courseModel->whereAnd(['id' => $gradeChangeRequest['course_id']])[0];
+
+        $notification_data = [
+            'type' => 'Update Grade Change Request',
+            'user_id' => $department_head_user['id'],
+            'message' => 'Grade Change Request has been reviewed by ' . $_SESSION['user_name'] . ' for ' . $course['name'] . '. Please review and take necessary action. Click the following to review the request, ' . '<a href="' . base_url('grade-change-requests/' . $gradeChangeRequest['id'] . '') . '">Grade Change Request</a>',
+        ];
+
+        $update_data = ['status' => 'Review'];
+        if ($gradeChangeRequestModel->update('id', $gradeChangeRequest['id'], $update_data) && $notificationModel->create($notification_data)) {
+            return;
+        } else {
+            echo 'Error Reviewing Grade Change Request. Please Try Again';
+        }
+    }
+
+    private function handleApproval($gradeChangeRequest)
+    {
+        $role = $_SESSION['role'];
+        $data = [
+            'request_id' => $gradeChangeRequest['id'],
+            'action' => 'approved',
+            'feedback' => $_POST['feedback'],
+            'created_by' => $_SESSION['user_id']
+        ];
+
+        $gradeChangeActionModel = new GradeChangeAction();
+        $gradeChangeActionModel->create($data);
+
+        $courseModel = new Course();
+        $studentModel = new Student();
         $userModel = new User();
         $notificationModel = new Notification();
 
-        $gradeChangeRequest = $gradeChangeRequestModel->find($id);
-        if ($gradeChangeRequest) {
-            if ($_SESSION['role'] == 'department head') {
-                $gradeChangeActionModel = new GradeChangeAction();
-                $data = [
-                    'request_id' => $id,
-                    'action' => 'approved',
-                    'feedback' => $_POST['feedback'],
-                    'created_by' => $_SESSION['user_id']
-                ];
-                $gradeChangeActionModel->create($data);
+        $course = $courseModel->whereAnd(['id' => $gradeChangeRequest['course_id']])[0];
+        $student = $studentModel->find($gradeChangeRequest['student_id']);
+        $user = $userModel->find($student['user_id']);
 
-                $facultyModel = new FacultyMember();
-                $userModel = new User();
-                $notificationModel = new Notification();
-                $courseModel = new Course();
+        $notification_data = [
+            'user_id' => $user['id'],
+            'type' => 'Grade Change Request Approved',
+            'message' => 'Grade Change Request has been approved by ' . $_SESSION['user_name'] . ' for ' . $course['name'] . '. Click here to view the request, <a href="' . base_url('grade-change-requests/' . $gradeChangeRequest['id'] . '') . '">Grade Change Request</a>',
+        ];
 
-                $finance_head = $facultyModel->where('role', 'finance head')[0];
-                $finance_head_user = $userModel->find($finance_head['user_id']);
-                $course = $courseModel->whereAnd(['id' => $gradeChangeRequest['course_id']])[0];
-
-                $notification_data = [
-                    'user_id' => $finance_head_user['id'],
-                    'message' => 'Grade Change Request has been approved by ' . $_SESSION['user_name'] . ' for ' . $course['name'] . ' Please review and take necessary action. Click the following to review the request, ' . '<a href="' . base_url('grade-change-requests/' . $id . '') . '">Grade Change Request</a>',
-                ];
-
-                $data = [
-                    'department_head_approval' => date('Y-m-d H:i:s'),
-                    'status' => 'DepartmentHeadApproval'
-                ];
-
-                if ($gradeChangeRequestModel->update('id', $id, $data) && $notificationModel->create($notification_data)) {
-                } else {
-                    echo'Error Approving Grade Change Request. Please Try Again'; 
-                }
-            } else if ($_SESSION['role'] == 'chairman') {
-                $gradeChangeActionModel = new GradeChangeAction();
-                $data = [
-                    'request_id' => $id,
-                    'action' => 'approved',
-                    'feedback' => $_POST['feedback'],
-                    'created_by' => $_SESSION['user_id']
-                ];
-                $gradeChangeActionModel->create($data);
-
-                $grade_data = [
-                    'grade' => $gradeChangeRequest['requested_grade'],
-                    'points' => $gradeChangeRequest['requested_points']
-                ];
-
-                $courseModel = new Course();
-                $course = $courseModel->whereAnd(['id' => $gradeChangeRequest['course_id']])[0];
-
-                $gradeM = $gradeModel->whereAnd(['course_id' => $course['id'], 'student_id' => $gradeChangeRequest['student_id']])[0];
-                $grade = $gradeModel->update('id', $gradeM['id'], $grade_data);
-
-                if ($grade) {
-                    $student = $studentModel->find($gradeChangeRequest['student_id']);
-                    $course = $courseModel->whereAnd(['id' => $gradeChangeRequest['course_id']])[0];
-                    $user = $userModel->find($student['user_id']);
-
-                    $notification_data = [
-                        'user_id' => $user['id'],
-                        'type' => 'Grade Change Request Approved',
-                        'message' => 'Grade Change Request has been approved by ' . $_SESSION['user_name'] . ' for ' . $course['name'] . '. Find more details below, ' . base_url('grade-change-requests'),
-                    ];
-
-                    $data = [
-                        'chairman_approval' => date('Y-m-d H:i:s'),
-                        'status' => 'Approved'
-                    ];
-
-                    if ($gradeChangeRequestModel->update('id', $id, $data) && $notificationModel->create($notification_data)) {
-                    } else {
-                        echo 'Error Approving Grade Change';
-                    }
-                } else {
-                    echo 'Error Approving Grade Change';
-                }
-            } else if ($_SESSION['role'] == 'finance head') {
-                $gradeChangeActionModel = new GradeChangeAction();
-                $data = [
-                    'request_id' => $id,
-                    'action' => 'approved',
-                    'feedback' => $_POST['feedback'],
-                    'created_by' => $_SESSION['user_id']
-                ];
-                $gradeChangeActionModel->create($data);
-                $course = $courseModel->whereAnd(['id' => $gradeChangeRequest['course_id']])[0];
-
-                $departmentModel = new Department();
-                $facultyModel = new FacultyMember();
-                $userModel = new User();
-                $notificationModel = new Notification();
-                $courseModel = new Course();
-
-                $chairman = $facultyModel->where('role', 'chairman')[0];
-                $chairman_user = $userModel->find($chairman['user_id']);
-
-                $notification_data = [
-                    'user_id' => $chairman_user['id'],
-                    'type' => 'Grade Change Request Approved',
-                    'message' => 'Grade Change Request has been approved by ' . $_SESSION['user_name'] . ' for ' . $course['name'] . ' Please review and take necessary action. Click the following to review the request, ' . '<a href="' . base_url('grade-change-requests/' . $id . '') . '">Grade Change Request</a>',
-                ];
-
-                $data = [
-                    'finance_head_approval' => date('Y-m-d H:i:s'),
-                    'status' => 'FinanceHeadApproval'
-                ];
-
-                if ($gradeChangeRequestModel->update('id', $id, $data) && $notificationModel->create($notification_data)) {
-                } else {
-                    echo 'Error Approving Grade Change Request';
-                }
-            }
+        if ($notificationModel->create($notification_data)) {
+            $this->changeGrade($gradeChangeRequest['id']);
+            header('Location: ' . base_url('grade-change-requests/' . $gradeChangeRequest['id']));
+            exit;
         } else {
-            $_SESSION['error-message'] = 'Error Approving Grade Change Request. Please Try Again';
-            $this->index();
+            echo 'Error Approving Grade Change Request';
         }
     }
+
 
     public function deny($id)
     {
@@ -160,6 +153,7 @@ class GradeChangeRequestController extends BaseController
                 $user = $userModel->find($student['user_id']);
                 $notification_data = [
                     'user_id' => $user['id'],
+                    'type' => 'Grade Change Request Denied',
                     'message' => 'Grade Change Request has been denied by ' . $_SESSION['user_name'] . ' for ' . $course['name'] . '. Feedback: ' . $_POST['feedback']
                 ];
 
@@ -184,12 +178,23 @@ class GradeChangeRequestController extends BaseController
 
         $gradeChangeRequest = $gradeChangeRequestModel->find($id);
         if ($gradeChangeRequest) {
-            // get the student
             $student = $studentModel->where('id', $gradeChangeRequest['student_id'])[0];
             $user = $userModel->find($student['user_id']);
             $gradeChangeRequest['student_name'] = $user['firstname'] . ' ' . $user['lastname'];
             $course = $courseModel->where('id', $gradeChangeRequest['course_id'])[0];
             $gradeChangeRequest['course_name'] = $course['name'];
+
+            $gradeChangeActionModel = new GradeChangeAction();
+
+            $gradeChangeActions = $gradeChangeActionModel->where('request_id', $id);
+
+            foreach ($gradeChangeActions as $key => $value) {
+                $user = $userModel->find($value['created_by']);
+                $gradeChangeActions[$key]['name'] = $user['firstname'] . ' ' . $user['lastname'];
+                $gradeChangeActions[$key]['role'] = $user['role'];
+            }
+
+            $gradeChangeRequest['reviews'] = $gradeChangeActions;
 
             $this->render('grade-change-requests/show', compact('gradeChangeRequest'));
         }
@@ -202,6 +207,7 @@ class GradeChangeRequestController extends BaseController
         $studentModel = new Student();
         $courseModel = new Course();
         $userModel = new User();
+        $gradeChangeActionModel = new GradeChangeAction();
 
         $gradeChangeRequests = [];
         if ($_SESSION['role'] == 'student') {
@@ -217,21 +223,7 @@ class GradeChangeRequestController extends BaseController
             foreach ($allgradeChangeRequests as $gradeChangeRequest) {
                 $student = $studentModel->find($gradeChangeRequest['student_id']);
                 $student_department_id = $student['department_id'];
-                if ($student_department_id == $faculty_department_id && $gradeChangeRequest['status'] == 'Initiated') {
-                    $gradeChangeRequests[] = $gradeChangeRequest;
-                }
-            }
-        } else if ($_SESSION['role'] == 'finance head') {
-            $allgradeChangeRequests = $gradeChangeRequestModel->all();
-            foreach ($allgradeChangeRequests as $gradeChangeRequest) {
-                if ($gradeChangeRequest['status'] == 'DepartmentHeadApproval') {
-                    $gradeChangeRequests[] = $gradeChangeRequest;
-                }
-            }
-        } else if ($_SESSION['role'] == 'chairman') {
-            $allgradeChangeRequests = $gradeChangeRequestModel->all();
-            foreach ($allgradeChangeRequests as $gradeChangeRequest) {
-                if ($gradeChangeRequest['status'] == 'FinanceHeadApproval') {
+                if ($student_department_id == $faculty_department_id) {
                     $gradeChangeRequests[] = $gradeChangeRequest;
                 }
             }
@@ -252,6 +244,8 @@ class GradeChangeRequestController extends BaseController
             $lastname = $user['lastname'];
 
             $gradeChangeRequest['student_name'] = $firstname . ' ' . $lastname;
+            $approvals = $gradeChangeActionModel->whereAnd(['request_id' => $gradeChangeRequest['id'], 'action' => 'approved']);
+            $gradeChangeRequest['approvals'] = count($approvals);
         }
 
         $this->render('grade-change-requests/index', compact('gradeChangeRequests'));
@@ -311,6 +305,15 @@ class GradeChangeRequestController extends BaseController
             $_SESSION['error-message'] = 'Similar Request Already Exists.';
             $this->redirect(base_url('/grade-change-requests/create'));
         }
+        // check if there is a file uploaded
+        if (!empty($_FILES['attachment']['name'])) {
+            $uploaddir = 'assets/uploads/';
+            $uploadfile = $uploaddir . basename($_FILES['attachment']['name']);
+
+            move_uploaded_file($_FILES['attachment']['tmp_name'], $uploadfile);
+        } else {
+            $uploadfile = '';
+        }
 
         $data = [
             'student_id' =>  $student_id,
@@ -320,12 +323,15 @@ class GradeChangeRequestController extends BaseController
             'original_points' => $_POST['original_points'],
             'requested_points' => $_POST['requested_points'],
             'reason' => $_POST['reason'],
-            'created_by' => $_SESSION['user_id']
+            'created_by' => $_SESSION['user_id'],
+            'attachments' => $uploadfile,
         ];
 
         $gradeChangeRequest = $gradeChangeRequestModel->create($data);
 
         if ($gradeChangeRequest) {
+
+
             $departmentModel = new Department();
             $studentModel = new Student();
             $facultyModel = new FacultyMember();
@@ -334,13 +340,13 @@ class GradeChangeRequestController extends BaseController
             $courseModel = new Course();
 
             $student = $studentModel->find($student_id);
-
             $department = $departmentModel->where('id', $student['department_id'])[0];
             $faculty = $facultyModel->whereAnd(['department_id' => $department['id'], 'role' => 'department head'])[0];
             $faculty_user = $userModel->find($faculty['user_id']);
             $course = $courseModel->find($data['course_id']);
 
             $notification_data = [
+                'type' => 'New Grade Change Request Submitted',
                 'user_id' => $faculty_user['id'],
                 'message' => 'New Grade Change Request has been submitted by ' . $_SESSION['user_name'] . ' for ' . $course['name'] . '. Click here to review the request, <a href="' . base_url('grade-change-requests/' . $gradeChangeRequest) . '">Grade Change Request</a>',
             ];
@@ -374,6 +380,15 @@ class GradeChangeRequestController extends BaseController
     public function update($id)
     {
         $gradeChangeRequestModel = new GradeChangeRequest();
+        // check if there is a file uploaded
+        if (!empty($_FILES['attachment']['name'])) {
+            $uploaddir = 'assets/uploads/';
+            $uploadfile = $uploaddir . basename($_FILES['attachment']['name']);
+
+            move_uploaded_file($_FILES['attachment']['tmp_name'], $uploadfile);
+        } else {
+            $uploadfile = '';
+        }
 
         $data = [
             'original_grade' => $_POST['original_grade'],
@@ -381,11 +396,40 @@ class GradeChangeRequestController extends BaseController
             'original_points' => $_POST['original_points'],
             'requested_points' => $_POST['requested_points'],
             'reason' => $_POST['reason'],
-            'status' => $_POST['status']
+            'status' => 'Initiated',
+            'attachments' => $uploadfile,
         ];
 
+
         if ($gradeChangeRequestModel->update('id', $id, $data)) {
-            $this->redirect(base_url('grade-change-requests'));
+            // notify the department head
+            $departmentModel = new Department();
+            $studentModel = new Student();
+            $facultyModel = new FacultyMember();
+            $userModel = new User();
+            $notificationModel = new Notification();
+            $courseModel = new Course();
+
+            $gradeChangeRequest = $gradeChangeRequestModel->find($id);
+            $student = $studentModel->find($gradeChangeRequest['student_id']);
+            $department = $departmentModel->where('id', $student['department_id'])[0];
+            $faculty = $facultyModel->whereAnd(['department_id' => $department['id'], 'role' => 'department head'])[0];
+            $faculty_user = $userModel->find($faculty['user_id']);
+            $course = $courseModel->find($gradeChangeRequest['course_id']);
+
+            $notification_data = [
+                'type' => 'Grade Change Request Updated',
+                'user_id' => $faculty_user['id'],
+                'message' => 'Grade Change Request has been updated by ' . $_SESSION['user_name'] . ' for ' . $course['name'] . '. Click here to review the request, <a href="' . base_url('grade-change-requests/' . $id . '') . '">Grade Change Request</a>',
+            ];
+
+            if ($notificationModel->create($notification_data)) {
+                $_SESSION['success-message'] = 'Grade Change Request Updated Successfully';
+                $this->redirect(base_url('grade-change-requests'));
+            } else {
+                $_SESSION['error-message'] = 'Error Updating Grade Change Request. Please Try Again';
+                $this->redirect(base_url('/grade-change-requests/edit/' . $id));
+            }
         } else {
             $_SESSION['error-message'] = 'Error Updating Grade Change Request. Please Try Again';
             $this->redirect(base_url('/grade-change-requests/edit/' . $id));
