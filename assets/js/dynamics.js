@@ -169,9 +169,7 @@ $(document).ready(function () {
     $.post(url, { feedback: feedback, action }, function (data) {
       if (data != '') {
         window.location.href = pathArray[0] + '/' + pathArray[1] + '/grade-change-requests/' + pathArray[3];
-        // alert(data);
       } else {
-        // window.location.href = pathArray[0] + '/' + pathArray[1] + '/grade-change-requests';
       }
     });
   });
