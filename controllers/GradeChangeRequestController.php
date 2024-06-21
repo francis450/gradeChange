@@ -88,7 +88,8 @@ class GradeChangeRequestController extends BaseController
 
         $update_data = ['status' => 'Review'];
         if ($gradeChangeRequestModel->update('id', $gradeChangeRequest['id'], $update_data) && $notificationModel->create($notification_data)) {
-            return;
+            header('Location: ' . base_url('grade-change-requests/' . $gradeChangeRequest['id'] . ''));
+            exit;
         } else {
             echo 'Error Reviewing Grade Change Request. Please Try Again';
         }
@@ -159,7 +160,7 @@ class GradeChangeRequestController extends BaseController
 
                 if ($notificationModel->create($notification_data)) {
                     $_SESSION['success-message'] = 'Grade Change Request Denied Successfully';
-                    header('Location: ' . base_url('grade-change-requests/'));
+                    header('Location: ' . base_url('grade-change-requests/' . $id));
                 } else {
                     $_SESSION['error-message'] = 'Error Denying Grade Change Request. Please Try Again';
                     header('Location: ' . base_url('grade-change-requests/' . $id));
